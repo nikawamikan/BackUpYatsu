@@ -2,35 +2,31 @@
 package com.example;
 
 import java.util.List;
-
-import javax.annotation.processing.Generated;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-@Generated("jsonschema2pojo")
 public class Necessary {
 
-    @SerializedName("necessary")
+    @SerializedName("nece")
     @Expose
-    private List<String> necessary = null;
+    private List<String> nece = null;
     @SerializedName("except")
     @Expose
-    private List<Object> except = null;
+    private List<String> except = null;
 
-    public List<String> getNecessary() {
-        return necessary;
+    public List<String> getNece() {
+        return nece;
     }
 
-    public void setNecessary(List<String> necessary) {
-        this.necessary = necessary;
+    public void setNece(List<String> nece) {
+        this.nece = nece;
     }
 
-    public List<Object> getExcept() {
+    public List<String> getExcept() {
         return except;
     }
 
-    public void setExcept(List<Object> except) {
+    public void setExcept(List<String> except) {
         this.except = except;
     }
 
