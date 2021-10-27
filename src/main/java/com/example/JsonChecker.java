@@ -11,42 +11,68 @@ import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 
-public class JsonChecker {
+/**
+ * Json形式のファイルからJson文字列を取り出してクラス化するヤツです<br/>
+ * コンストラクタを作成するときはHinagataクラスを継承したオブジェクトを引数としなくてはなりません。
+ * 
+ * @author nikawamikan
+ */
+public class JsonChecker<T extends Hinagata<T>> {
 
-    public static Necessary getNecessary(String jsonPath) throws FileNotFoundException, IOException {
+    // リターンする系オブジェクト
+    private T t;
+    // Gsonで何型のオブジェクトか判定するために必要
+    private final Class<T> c;
+    // Jsonファイルのあるファイルパス
+
+    /**
+     * 専用オブジェクトから位置インスタンス生成します。<br/>
+     * 専用オブジェクトはHinagataを実装する必要があります。
+     * 
+     * @param t
+     */
+    public JsonChecker(T t) {
+        this.t = t;
+        this.c = t.getClazz();
+    }
+
+    /**
+     * ジェネリクスで指定されたJsonの専用オブジェクトを返します
+     * 
+     * @return Json専用オブジェクト
+     * @throws FileNotFoundException ファイルが見つからない時に処理
+     * @throws IOException           出たことないヤツだけど異常終了系で処理する
+     */
+    public T getJsonObj() throws FileNotFoundException, IOException {
         String json = null;
         try {
 
-            json = getJsonString(jsonPath);
+            json = getJsonString(t.jsonPath());
 
         } catch (FileNotFoundException e) {
 
             /*
              * Jsonが存在していなかった場合は雛形を作成して編集してもらう
              */
-            Path p = Paths.get(".", jsonPath);
-
-            // 空テンプレートのString
-            final String hinagata = "{" + System.lineSeparator() + "\t\"nece\":[\"\"]," + System.lineSeparator()
-                    + "\t\"except\":[\"\"]" + System.lineSeparator() + "}";
+            Path p = Paths.get(".", t.jsonPath());
 
             BufferedWriter bw = Files.newBufferedWriter(p);
 
-            bw.write(hinagata);
+            bw.write(t.getHinagata());
             bw.close();
 
             throw e;
         }
 
         Gson gson = new Gson();
-        Necessary necessary = gson.fromJson(json, Necessary.class);
 
-        return necessary;
+        t = gson.fromJson(json, c);
+
+        return t;
     }
 
     /**
      * パスから読み込んだファイルをString型に置き換える<br/>
-     * String型の仕様を考えると少し心苦しい(ConstantPoolにやたら長い文字列が並びかねない)
      * 
      * @param jsonPath Jsonファイルのある場所の文字列
      * @return Jsonのファイルを文字列に置換したもの

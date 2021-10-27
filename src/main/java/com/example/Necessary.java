@@ -14,7 +14,7 @@ import com.google.gson.annotations.SerializedName;
  * 
  * @author nikawamikan
  */
-public class Necessary {
+public class Necessary implements Hinagata<Necessary> {
 
     @SerializedName("nece")
     @Expose
@@ -29,6 +29,7 @@ public class Necessary {
      */
     private List<String> except = null;
 
+    // getter setter
     public List<String> getNece() {
         return nece;
     }
@@ -43,6 +44,24 @@ public class Necessary {
 
     public void setExcept(List<String> except) {
         this.except = except;
+    }
+
+    // 色々と設定用
+    @Override
+    public String getHinagata() {
+        String hinagata = "{" + System.lineSeparator() + "\t\"nece\":[\"\"]," + System.lineSeparator()
+                + "\t\"except\":[\"\"]" + System.lineSeparator() + "}";
+        return hinagata;
+    }
+
+    @Override
+    public Class<Necessary> getClazz() {
+        return Necessary.class;
+    }
+
+    @Override
+    public String jsonPath() {
+        return "necessary.json";
     }
 
 }
