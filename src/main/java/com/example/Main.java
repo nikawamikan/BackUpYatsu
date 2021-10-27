@@ -33,8 +33,10 @@ public class Main {
         final File destination = new File(p + "\\" + copyFileName);
 
         // ToDo Try構文でメッセージ表示後終了させる
-        final Necessary necessary = JsonChecker.getNecessary("necessary.json");
+        Necessary necessary = new Necessary();
+        necessary = new JsonChecker<Necessary>(necessary).getJsonObj();
 
+        // コピーと圧縮するヤツ
         CopyAndCompress.compressDirectory(destination, dir, necessary);
     }
 }
