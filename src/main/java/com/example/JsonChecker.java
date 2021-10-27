@@ -12,13 +12,12 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;
 
 public class JsonChecker {
+
     public static Necessary getNecessary(String jsonPath) throws FileNotFoundException, IOException {
         String json = null;
         try {
 
             json = getJsonString(jsonPath);
-
-            // System.out.println("jsonOK");
 
         } catch (FileNotFoundException e) {
 
@@ -27,18 +26,16 @@ public class JsonChecker {
              */
             Path p = Paths.get(".", jsonPath);
 
+            // 空テンプレートのString
             final String hinagata = "{" + System.lineSeparator() + "\t\"nece\":[\"\"]," + System.lineSeparator()
                     + "\t\"except\":[\"\"]" + System.lineSeparator() + "}";
 
-            BufferedWriter os = Files.newBufferedWriter(p);
+            BufferedWriter bw = Files.newBufferedWriter(p);
 
-            os.write(hinagata);
-            os.close();
+            bw.write(hinagata);
+            bw.close();
 
             throw e;
-
-            // System.out.println("jsonNull");
-
         }
 
         Gson gson = new Gson();
@@ -47,7 +44,17 @@ public class JsonChecker {
         return necessary;
     }
 
-    public static String getJsonString(String jsonPath) throws FileNotFoundException, IOException {
+    /**
+     * パスから読み込んだファイルをString型に置き換える<br/>
+     * String型の仕様を考えると少し心苦しい(ConstantPoolにやたら長い文字列が並びかねない)
+     * 
+     * @param jsonPath Jsonファイルのある場所の文字列
+     * @return Jsonのファイルを文字列に置換したもの
+     * @throws FileNotFoundException ファイルが読み込めない場合などに投げる
+     * @throws IOException           いつ投げるか知らない
+     * 
+     */
+    private static String getJsonString(String jsonPath) throws FileNotFoundException, IOException {
         StringBuilder jsonString = null;
 
         try (BufferedReader bufreader = new BufferedReader(new FileReader(jsonPath))) {
