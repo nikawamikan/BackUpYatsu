@@ -30,7 +30,7 @@ public class Main {
         }
 
         // ファイルがあったらそのまま使うしファイルがなかったら生成するメソッドなので気にせずそのまま仕様
-        final File destination = new File(p + "\\" + copyFileName);
+        final File destination = new File(p + File.separator + copyFileName);
 
         // ToDo Try構文でメッセージ表示後終了させる
         Necessary necessary = new Necessary();

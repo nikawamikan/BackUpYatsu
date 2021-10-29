@@ -49,8 +49,12 @@ public class Necessary implements Hinagata<Necessary> {
     // 色々と設定用
     @Override
     public String getHinagata() {
-        String hinagata = "{" + System.lineSeparator() + "\t\"nece\":[\"\"]," + System.lineSeparator()
-                + "\t\"except\":[\"\"]" + System.lineSeparator() + "}";
+        String hinagata = """
+                {
+                    \"nece\":[\"\"],
+                    \"except\":[\"\"]
+                }
+                """;
         return hinagata;
     }
 
