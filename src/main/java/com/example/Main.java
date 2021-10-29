@@ -7,6 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+
+import static com.example.MessageException.*;
 
 public class Main {
 
@@ -16,27 +19,49 @@ public class Main {
      * @param args
      * @throws IOException
      */
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) {
 
-        // 現時刻を取得してファイル名とする
-        final String copyFileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".zip";
+        final DateTimeFormatter logFormat = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+        System.out.println(LocalDateTime.now().format(logFormat) + "Zip copy start !!");
 
-        final File dir = new File(".");
+        try {
 
-        final Path p = Paths.get(".", "old_data");
+            if (args.length != 0) {
+                if (args[0].toLowerCase() == "help") {
+                    throw new MessageException(HELP_MESSAGE);
+                }
+            }
 
-        if (!Files.exists(p)) {
-            Files.createDirectories(p);
+            ConfigJson necessary = new ConfigJson();
+            necessary = new JsonChecker<ConfigJson>(necessary).getJsonObj();
+
+            // 現時刻を取得してファイル名とする
+            final String copyFileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+                    + ".zip";
+
+            final File dir = new File(necessary.getFrom());
+
+            final Path p = Paths.get(necessary.getTo(), "old_data");
+
+            if (!Files.exists(p)) {
+                try {
+                    Files.createDirectories(p);
+                } catch (IOException e) {
+                    throw new MessageException();
+                }
+            }
+
+            // ファイルがあったらそのまま使うしファイルがなかったら生成するメソッドなので気にせずそのまま仕様
+            final File destination = new File(p + File.separator + copyFileName);
+
+            // ToDo Try構文でメッセージ表示後終了させる
+
+            // コピーと圧縮するヤツ
+            CopyAndCompress.compressDirectory(destination, dir, necessary);
+        } catch (MessageException e) {
+            System.out.println(e);
+        } finally {
+            System.out.println(LocalDateTime.now().format(logFormat) + "Zip copy done !!");
         }
-
-        // ファイルがあったらそのまま使うしファイルがなかったら生成するメソッドなので気にせずそのまま仕様
-        final File destination = new File(p + File.separator + copyFileName);
-
-        // ToDo Try構文でメッセージ表示後終了させる
-        Necessary necessary = new Necessary();
-        necessary = new JsonChecker<Necessary>(necessary).getJsonObj();
-
-        // コピーと圧縮するヤツ
-        CopyAndCompress.compressDirectory(destination, dir, necessary);
     }
 }

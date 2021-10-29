@@ -11,7 +11,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
+import static com.example.MessageException.*;
 
 public class CopyAndCompress {
     /**
@@ -19,10 +21,10 @@ public class CopyAndCompress {
      * 
      * @param destination ZIP保存先ファイル
      * @param dir         圧縮対象のルートフォルダパス
-     * @throws IOException
+     * @throws MessageException
      */
-    public static void compressDirectory(final File destination, final File dir, final Necessary necessary)
-            throws IOException {
+    public static void compressDirectory(final File destination, final File dir, final ConfigJson necessary)
+            throws MessageException {
 
         // 変数宣言
         byte[] buf = new byte[1024];
@@ -32,7 +34,6 @@ public class CopyAndCompress {
         // ZIP対象フォルダ配下の全ファイルを取得
         List<File> files = new ArrayList<File>();
         getCurrentFiles(dir, files, necessary);
-
         try {
 
             // ZIP出力オブジェクトを取得
@@ -58,13 +59,26 @@ public class CopyAndCompress {
                 is.close();
             }
 
+        } catch (ZipException e) {
+            throw new MessageException(ZIPEXCEPTION_MESSAGE);
+        } catch (IOException e) {
+            throw new MessageException();
+
             // 処理の最後にストリームは常に閉じる
         } finally {
             if (zos != null) {
-                zos.close();
+                try {
+                    zos.close();
+                } catch (IOException e) {
+                    throw new MessageException();
+                }
             }
             if (is != null) {
-                is.close();
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    throw new MessageException();
+                }
             }
         }
     }
@@ -77,7 +91,7 @@ public class CopyAndCompress {
      * @param files     ファイル一覧
      * @param necessary 設定用Jsonをリスト化したオブジェクト
      */
-    private static void getFiles(final File parentDir, final List<File> files, Necessary necessary) {
+    private static void getFiles(final File parentDir, final List<File> files, ConfigJson necessary) {
 
         // ファイル取得対象フォルダ直下のファイル,ディレクトリを走査
         for (File f : parentDir.listFiles()) {
@@ -105,7 +119,7 @@ public class CopyAndCompress {
      * @param files     ファイル一覧
      * @param necessary 設定用Jsonをリスト化したオブジェクト
      */
-    private static void getCurrentFiles(final File parentDir, final List<File> files, Necessary necessary) {
+    private static void getCurrentFiles(final File parentDir, final List<File> files, ConfigJson necessary) {
 
         // ファイル取得対象フォルダ直下のファイル,ディレクトリを走査
         for (File f : parentDir.listFiles()) {

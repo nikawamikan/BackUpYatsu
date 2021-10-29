@@ -1,5 +1,7 @@
 package com.example;
 
+import static com.example.MessageException.*;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -10,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * Json形式のファイルからJson文字列を取り出してクラス化するヤツです<br/>
@@ -40,33 +43,33 @@ public class JsonChecker<T extends Hinagata<T>> {
      * ジェネリクスで指定されたJsonの専用オブジェクトを返します
      * 
      * @return Json専用オブジェクト
-     * @throws FileNotFoundException ファイルが見つからない時に処理
-     * @throws IOException           出たことないヤツだけど異常終了系で処理する
+     * @exception MessageException IOExceptionでもなんでもとりあえず変換してコレで投げるヤツ
      */
-    public T getJsonObj() throws FileNotFoundException, IOException {
+    public T getJsonObj() throws MessageException {
         String json = null;
         try {
 
             json = getJsonString(t.jsonPath());
 
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
 
             /*
              * Jsonが存在していなかった場合は雛形を作成して編集してもらう
              */
-            Path p = Paths.get(".", t.jsonPath());
+            jsonBuilder(t.jsonPath(), t.getHinagata());
 
-            BufferedWriter bw = Files.newBufferedWriter(p);
-
-            bw.write(t.getHinagata());
-            bw.close();
-
-            throw e;
+            throw new MessageException(NOT_FOUND_NENESARY_MESSAGE);
         }
 
         Gson gson = new Gson();
 
-        t = gson.fromJson(json, c);
+        try {
+
+            t = gson.fromJson(json, c);
+        } catch (JsonSyntaxException e) {
+
+            throw new MessageException(JSON_SYNTAX_MESSAGE, json);
+        }
 
         return t;
     }
@@ -77,10 +80,10 @@ public class JsonChecker<T extends Hinagata<T>> {
      * @param jsonPath Jsonファイルのある場所の文字列
      * @return Jsonのファイルを文字列に置換したもの
      * @throws FileNotFoundException ファイルが読み込めない場合などに投げる
-     * @throws IOException           いつ投げるか知らない
+     * @throws MessageException      IOExceptionを変換して投げます
      * 
      */
-    private static String getJsonString(String jsonPath) throws FileNotFoundException, IOException {
+    private static String getJsonString(String jsonPath) throws IOException {
         StringBuilder jsonString = null;
 
         try (BufferedReader bufreader = new BufferedReader(new FileReader(jsonPath))) {
@@ -93,4 +96,27 @@ public class JsonChecker<T extends Hinagata<T>> {
 
         return jsonString.toString();
     }
+
+    public static void jsonBuilder(String jsonPath, String hinagata) throws MessageException {
+
+        Path p = Paths.get(".", jsonPath);
+
+        BufferedWriter bw = null;
+        try {
+            bw = Files.newBufferedWriter(p);
+
+            bw.write(hinagata);
+
+        } catch (IOException e) {
+            throw new MessageException(IOEXCEPTIN_MESSAGE);
+        } finally {
+            try {
+                if (bw != null) {
+                    bw.close();
+                }
+            } catch (IOException e) {
+                throw new MessageException(IOEXCEPTIN_MESSAGE);
+            }
+        }
+    };
 }

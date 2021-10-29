@@ -14,19 +14,34 @@ import com.google.gson.annotations.SerializedName;
  * 
  * @author nikawamikan
  */
-public class Necessary implements Hinagata<Necessary> {
+public class ConfigJson implements Hinagata<ConfigJson> {
 
-    @SerializedName("nece")
+    /**
+     * カレントディレクトリの指定
+     */
+    @SerializedName("from")
     @Expose
+    private String from = null;
+
+    /**
+     * 宛先ディレクトリの指定
+     */
+    @SerializedName("to")
+    @Expose
+    private String to = null;
+
     /**
      * コピーするファイルを指定するためのリスト
      */
-    private List<String> nece = null;
-    @SerializedName("except")
+    @SerializedName("nece")
     @Expose
+    private List<String> nece = null;
+
     /**
      * 例外的に不要なファイルを指定するリスト
      */
+    @SerializedName("except")
+    @Expose
     private List<String> except = null;
 
     // getter setter
@@ -46,26 +61,47 @@ public class Necessary implements Hinagata<Necessary> {
         this.except = except;
     }
 
+    public String getFrom() {
+        return this.from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return this.to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public final static String HINAGATA = """
+            {
+                \"from\":\".\",
+                \"to\":\".\",
+                \"nece\":[\"\"],
+                \"except\":[\"\"]
+            }
+            """;
+
     // 色々と設定用
     @Override
     public String getHinagata() {
-        String hinagata = """
-                {
-                    \"nece\":[\"\"],
-                    \"except\":[\"\"]
-                }
-                """;
-        return hinagata;
+        return HINAGATA;
     }
 
     @Override
-    public Class<Necessary> getClazz() {
-        return Necessary.class;
+    public Class<ConfigJson> getClazz() {
+        return ConfigJson.class;
     }
+
+    public static final String JSON_PATH = "config.json";
 
     @Override
     public String jsonPath() {
-        return "necessary.json";
+        return JSON_PATH;
     }
 
 }
